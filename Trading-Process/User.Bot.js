@@ -198,15 +198,15 @@
 
                     let balance = assistant.getBalance();
 
-                    if (balance.assetA === 0) {// means if we have zero USDT.
+                    if (balance.assetA < balance.assetB) {// means that we have more USDT than BTC.
 
-                        if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> seeWhatWeAreHolding -> holdingBTC because balance.assetA === 0."); }
+                        if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> seeWhatWeAreHolding -> holdingBTC because balance.assetA < balance.assetB."); }
 
                         holdingBTC(callBack);
 
                     } else {
 
-                        if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> seeWhatWeAreHolding -> holdingUSDT because balance.assetA !== 0."); }
+                        if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> seeWhatWeAreHolding -> holdingUSDT because balance.assetA is not < balance.assetB."); }
 
                         holdingUSDT(callBack);
 
@@ -1511,7 +1511,7 @@
 
                     let positions = assistant.getPositions();
                     let availableBalance = assistant.getAvailableBalance().assetB;
-                    let currentRate = assistant.getMarketRate();
+                    let currentRate = assistant.getTicker().bid;
                     let amountB = assistant.getAvailableBalance().assetB;
                     let amountA = parseFloat(amountB * currentRate).toFixed(8);
 
@@ -1596,7 +1596,7 @@
 
                     let positions = assistant.getPositions();
                     let availableBalance = assistant.getAvailableBalance().assetA;
-                    let currentRate = assistant.getMarketRate();
+                    let currentRate = assistant.getTicker().ask;
                     let amountA = assistant.getAvailableBalance().assetA;
                     let amountB = Number(parseFloat(amountA / currentRate).toFixed(8));
 
