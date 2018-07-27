@@ -10,6 +10,20 @@
   "devTeam": "AAMasters",
   "profilePicture": "Robert.png",
   "dataSetVersion": "dataSet.V1",
+  "geneticRules": [
+    {
+      "name": "buyThreshold",
+      "description": "This represent the amount of buying signals needed to trigger a buying operation.",
+      "lowerLimit": 2,
+      "upperLimit": 6
+    },
+    {
+      "name": "sellThreshold",
+      "description": "This represent the amount of selling signals needed to trigger a selling operation.",
+      "lowerLimit": 2,
+      "upperLimit": 6
+    }
+  ],
   "processes": [
     {
       "name": "Trading-Process",
@@ -28,7 +42,7 @@
         "competition": {
           "run": "true",
           "beginDatetime": "2018-07-04T00:00:00.000Z",
-          "endDatetime": "2018-07-06T23:59:59.000Z",
+          "endDatetime": "2018-08-10T23:59:59.000Z",
           "resumeExecution": "false"
         }
       },
@@ -38,60 +52,60 @@
       "comaWaitTime": 86400000,
       "statusDependencies": [
         {
-            "devTeam": "AAMasters",
-            "bot": "AARobert",
-            "botVersion": {
-                "major": 1,
-                "minor": 0
-            },
-            "process": "Trading-Process",
-            "dataSetVersion": "dataSet.V1"
+          "devTeam": "AAMasters",
+          "bot": "AARobert",
+          "botVersion": {
+            "major": 1,
+            "minor": 0
+          },
+          "process": "Trading-Process",
+          "dataSetVersion": "dataSet.V1"
         }
       ],
       "dataDependencies": [
         {
-            "devTeam": "AAVikings",
-            "bot": "AAGauss",
-            "botVersion": {
-                "major": 1,
-                "minor": 0
-            },
-            "product": "LRC-Points",
-            "dataSetVersion": "dataSet.V1",
-            "dataSet": "Multi-Period-Daily"
+          "devTeam": "AAVikings",
+          "bot": "AAGauss",
+          "botVersion": {
+            "major": 1,
+            "minor": 0
+          },
+          "product": "LRC-Points",
+          "dataSetVersion": "dataSet.V1",
+          "dataSet": "Multi-Period-Daily"
         },
         {
-            "devTeam": "AAVikings",
-            "bot": "AAGauss",
-            "botVersion": {
-                "major": 1,
-                "minor": 0
-            },
-            "product": "LRC-Points",
-            "dataSetVersion": "dataSet.V1",
-            "dataSet": "Multi-Period-Market"
+          "devTeam": "AAVikings",
+          "bot": "AAGauss",
+          "botVersion": {
+            "major": 1,
+            "minor": 0
+          },
+          "product": "LRC-Points",
+          "dataSetVersion": "dataSet.V1",
+          "dataSet": "Multi-Period-Market"
         },
         {
-            "devTeam": "AAMasters",
-            "bot": "AAOlivia",
-            "botVersion": {
-                "major": 1,
-                "minor": 0
-            },
-            "product": "Candles",
-            "dataSetVersion": "dataSet.V1",
-            "dataSet": "Multi-Period-Daily"
+          "devTeam": "AAMasters",
+          "bot": "AAOlivia",
+          "botVersion": {
+            "major": 1,
+            "minor": 0
+          },
+          "product": "Candles",
+          "dataSetVersion": "dataSet.V1",
+          "dataSet": "Multi-Period-Daily"
         },
         {
-            "devTeam": "AAMasters",
-            "bot": "AAOlivia",
-            "botVersion": {
-                "major": 1,
-                "minor": 0
-            },
-            "product": "Candles",
-            "dataSetVersion": "dataSet.V1",
-            "dataSet": "Multi-Period-Market"
+          "devTeam": "AAMasters",
+          "bot": "AAOlivia",
+          "botVersion": {
+            "major": 1,
+            "minor": 0
+          },
+          "product": "Candles",
+          "dataSetVersion": "dataSet.V1",
+          "dataSet": "Multi-Period-Market"
         },
         {
           "devTeam": "AAMasters",

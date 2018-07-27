@@ -1,0 +1,3 @@
+C:\Users\Luis\source\repos\Bots\AAMasters\AARobert-Trading-Bot\obj\Debug\Project.njsprojResolveAssemblyReference.cache
+C:\Users\Luis\source\repos\Bots\AAMasters\AARobert-Trading-Bot\obj\Debug\Project.njsproj.CoreCompileInputs.cache
+C:\Users\Luis\source\repos\Bots\AAMasters\AARobert-Trading-Bot\bin\Microsoft.NodejsTools.WebRole.dll

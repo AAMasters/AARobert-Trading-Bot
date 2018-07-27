@@ -1,4 +1,4 @@
-﻿exports.newUserBot = function newUserBot(bot, logger) {
+﻿exports.newUserBot = function newUserBot(bot, logger) { 
 
     const MODULE_NAME = "User Bot";
     const FULL_LOG = true;
@@ -13,12 +13,11 @@
     let gaussStorage;
     let oliviaStorage;
 
-    const SELL_THRESHOLD = 3;
-    const BUY_THRESHOLD = 2;
+    let genes;
 
     return thisObject;
 
-    function initialize(pAssistant, callBackFunction) {
+    function initialize(pAssistant, pGenes, callBackFunction) {
 
         try {
             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] initialize -> Entering function."); }
@@ -35,10 +34,58 @@
             key = "AAMasters-AAOlivia-Candles-Multi-Period-Daily-dataSet.V1";
             oliviaStorage = assistant.dataDependencies.dataSets.get(key);
 
-            callBackFunction(global.DEFAULT_OK_RESPONSE);
+            checkGenes(pGenes, callBackFunction);
 
         } catch (err) {
             logger.write(MODULE_NAME, "[ERROR] initialize -> err = " + err.message);
+            callBackFunction(global.DEFAULT_FAIL_RESPONSE);
+        }
+    }
+
+    function checkGenes(pGenes, callBackFunction) {
+
+        try {
+            if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] checkGenes -> Entering function."); }
+
+            function getGeneticRulesByName(pName) {
+
+                for (let i = 0; i < bot.geneticRules.length; i++) {
+
+                    let rule = bot.geneticRules[i];
+
+                    if (rule.name === pName) {
+
+                        return rule;
+
+                    }
+                }
+
+                return undefined;
+            }
+
+            let buyThreshold = getGeneticRulesByName("buyThreshold");
+            let sellThreshold = getGeneticRulesByName("sellThreshold");
+
+            if (
+                pGenes.buyThreshold < buyThreshold.lowerLimit      |
+                pGenes.buyThreshold > buyThreshold.upperLimit      |
+                pGenes.sellThreshold < sellThreshold.lowerLimit    |
+                pGenes.sellThreshold > sellThreshold.upperLimit 
+                ) 
+            {
+                logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> Genes received are out of range.");
+                logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> pGenes = " + JSON.stringify(pGenes));
+                logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> bot.geneticRules = " + JSON.stringify(bot.geneticRules));
+                callBackFunction(global.DEFAULT_FAIL_RESPONSE);
+                return;
+            }
+
+            genes = pGenes;
+
+            callBackFunction(global.DEFAULT_OK_RESPONSE);
+
+        } catch (err) {
+            logger.write(MODULE_NAME, "[ERROR] checkGenes -> err = " + err.message);
             callBackFunction(global.DEFAULT_FAIL_RESPONSE);
         }
     }
@@ -97,7 +144,7 @@
             let ROI = assistant.getROI();
             let marketRate = assistant.getMarketRate();
 
-            if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> current economics -> marketRate = " + parseFloat(marketRate).toFixed(2)); }
+            if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> current economics -> marketRate = " + marketRate); }
             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> current economics -> currentProfits = " + JSON.stringify(currentProfits)); }
             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> current economics -> balance = " + JSON.stringify(balance)); }
             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> current economics -> availableBalance = " + JSON.stringify(availableBalance)); }
@@ -253,7 +300,7 @@
                                             if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> holdingBTC -> onCandleFiles -> onTimePeriodChosen -> onLRCFilesReady -> Entering function."); }
 
                                             getLRCSegments(onSegmentsReady);
-
+                                            
                                             function onSegmentsReady() {
 
                                                 try {
@@ -1448,7 +1495,7 @@
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> Entering function."); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> totalSellingSignals = " + totalSellingSignals); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> totalBuyingSignals = " + totalBuyingSignals); }
-
+                    
                     if (totalSellingSignals <= totalBuyingSignals) {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> It makes more sense to BUY than to SELL. Not Selling now."); }
@@ -1456,13 +1503,13 @@
                         return;
                     }
 
-                    if (totalSellingSignals <= SELL_THRESHOLD) { // There are 19 possible timePeriods. We need than this threadhold to call a SELL. 
+                    if (totalSellingSignals <= genes.sellThreshold) { // There are 19 possible timePeriods. We need than this threadhold to call a SELL. 
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> Not enought selling signals. Not Selling now."); }
                         callback();
                         return;
                     }
-
+                    
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> This is the right time to SELL. Selling now."); }
                     createSellPosition(callback);
 
@@ -1479,7 +1526,7 @@
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> Entering function."); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> totalSellingSignals = " + totalSellingSignals); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> totalBuyingSignals = " + totalBuyingSignals); }
-
+                    
                     if (totalBuyingSignals <= totalSellingSignals) {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> It makes more sense to SELL than to BUY. Not Buying now."); }
@@ -1487,13 +1534,13 @@
                         return;
                     }
 
-                    if (totalBuyingSignals <= BUY_THRESHOLD) { // There are 19 possible timePeriods. We need more than this threadhold to call a BUY. 
+                    if (totalBuyingSignals <= genes.buyThreshold) { // There are 19 possible timePeriods. We need more than this threadhold to call a BUY. 
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> Not enought buying signals. Not Buying now."); }
                         callback();
                         return;
                     }
-
+                    
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> This is the right time to BUY. Buying now."); }
                     createBuyPosition(callback);
 
@@ -1513,7 +1560,11 @@
                     let availableBalance = assistant.getAvailableBalance().assetB;
                     let currentRate = assistant.getTicker().bid;
                     let amountB = assistant.getAvailableBalance().assetB;
-                    let amountA = parseFloat(amountB * currentRate).toFixed(8);
+                    let amountA = assistant.truncDecimals(amountB * currentRate);
+
+                    currentRate = assistant.truncDecimals(currentRate);
+                    amountA = assistant.truncDecimals(amountA);
+                    amountB = assistant.truncDecimals(amountB);
 
                     if (positions.length > 0 && positions[0].type === "sell" && positions[0].status !== "executed") {
 
@@ -1538,10 +1589,10 @@
                                 }
 
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onMoved -> BTC SELL position moved. "); }
-                                if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onMoved -> currentRate = " + parseFloat(currentRate).toFixed(8)); }
+                                if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onMoved -> currentRate = " + currentRate); }
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onMoved -> previous position = " + JSON.stringify(positions[0])); }
 
-                                let message = "I have moved an existing SELL position to this new rate: " + parseFloat(currentRate).toFixed(8);
+                                let message = "I have moved an existing SELL position to this new rate: " + currentRate;
                                 assistant.sendMessage(0, "Moving SELL BTC Position", message);
 
                                 callback();
@@ -1567,7 +1618,7 @@
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onSell -> amountA = " + amountA); }
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onSell -> amountB = " + amountB); }
 
-                            let message = "I have created a new SELL position at rate: " + parseFloat(currentRate).toFixed(8) + ". " + MARKET.assetA + " amount: " + parseFloat(amountA).toFixed(8) + ". " + MARKET.assetB + " amount: " + parseFloat(amountB).toFixed(8) + ". ROI.assetB:" + ROI.assetB;
+                            let message = "I have created a new SELL position at rate: " + currentRate + ". " + MARKET.assetA + " amount: " + amountA + ". " + MARKET.assetB + " amount: " + amountB + ". ROI.assetB:" + ROI.assetB;
                             assistant.sendMessage(0, "Selling BTC", message);
 
                             /* We need to remember the timePeriod for the next bot executions. Until we dont exit USDT we will keep the same timePeriod we used to enter. */
@@ -1598,7 +1649,11 @@
                     let availableBalance = assistant.getAvailableBalance().assetA;
                     let currentRate = assistant.getTicker().ask;
                     let amountA = assistant.getAvailableBalance().assetA;
-                    let amountB = Number(parseFloat(amountA / currentRate).toFixed(8));
+                    let amountB = assistant.truncDecimals(amountA / currentRate);
+
+                    currentRate = assistant.truncDecimals(currentRate);
+                    amountA = assistant.truncDecimals(amountA);
+                    amountB = assistant.truncDecimals(amountB);
 
                     if (positions.length > 0 && positions[0].type === "buy" && positions[0].status !== "executed") {
 
@@ -1623,10 +1678,10 @@
                                 }
 
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onMoved -> BTC BUY position moved. "); }
-                                if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onMoved -> currentRate = " + parseFloat(currentRate).toFixed(8)); }
+                                if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onMoved -> currentRate = " + currentRate); }
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onMoved -> previous position = " + JSON.stringify(positions[0])); }
 
-                                let message = "I have moved an existing BUY position to this new rate: " + parseFloat(currentRate).toFixed(8);
+                                let message = "I have moved an existing BUY position to this new rate: " + currentRate;
                                 assistant.sendMessage(0, "Moving BUY BTC Position", message);
 
                                 callback();
@@ -1652,7 +1707,7 @@
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onBuy -> amountA = " + amountA); }
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onBuy -> amountB = " + amountB); }
 
-                            let message = "I have created a new BUY position at rate: " + parseFloat(currentRate).toFixed(8) + ". " + MARKET.assetA + " amount: " + parseFloat(amountA).toFixed(8) + ". " + MARKET.assetB + " amount: " + parseFloat(amountB).toFixed(8) + ". ROI.assetB:" + ROI.assetB;
+                            let message = "I have created a new BUY position at rate: " + currentRate + ". " + MARKET.assetA + " amount: " + amountA + ". " + MARKET.assetB + " amount: " + amountB + ". ROI.assetB:" + ROI.assetB;
                             assistant.sendMessage(0, "Buying BTC", message);
 
                             callback();
