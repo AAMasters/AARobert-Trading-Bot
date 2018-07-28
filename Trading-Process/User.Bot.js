@@ -1557,15 +1557,15 @@
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> Entering function."); }
 
                     let positions = assistant.getPositions();
-                    let availableBalance = assistant.getAvailableBalance().assetB;
-                    let currentRate = assistant.getTicker().bid;
-                    let amountB = assistant.getAvailableBalance().assetB;
-                    let amountA = assistant.truncDecimals(amountB * currentRate);
 
+                    let currentRate = assistant.getTicker().bid;
                     currentRate = assistant.truncDecimals(currentRate);
-                    amountA = assistant.truncDecimals(amountA);
+
+                    let amountB = assistant.getAvailableBalance().assetB;
                     amountB = assistant.truncDecimals(amountB);
 
+                    let amountA = assistant.truncDecimals(amountB * currentRate);                    
+                    
                     if (positions.length > 0 && positions[0].type === "sell" && positions[0].status !== "executed") {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> Moving SELL position."); }
@@ -1605,13 +1605,27 @@
                         }
                     }
 
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> BTC SELL position to be created. "); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> currentRate = " + currentRate); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> amountA = " + amountA); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> amountB = " + amountB); }
+
                     assistant.putPosition("sell", currentRate, amountA, amountB, onSell);
 
-                    function onSell() {
+                    function onSell(err) {
 
                         try {
 
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onSell -> Entering function."); }
+
+                            if (err.result !== global.DEFAULT_OK_RESPONSE.result) {
+
+                                logger.write(MODULE_NAME, "[ERROR] start -> createSellPosition -> onSell -> Error received from the Assistant");
+                                logger.write(MODULE_NAME, "[ERROR] start -> createSellPosition -> onSell -> err = " + err.message);
+
+                                callBackFunction(err);
+                                return;
+                            }
 
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onSell -> BTC SELL position created. "); }
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onSell -> currentRate = " + currentRate); }
@@ -1646,14 +1660,14 @@
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> Entering function."); }
 
                     let positions = assistant.getPositions();
-                    let availableBalance = assistant.getAvailableBalance().assetA;
-                    let currentRate = assistant.getTicker().ask;
-                    let amountA = assistant.getAvailableBalance().assetA;
-                    let amountB = assistant.truncDecimals(amountA / currentRate);
 
+                    let currentRate = assistant.getTicker().ask;
                     currentRate = assistant.truncDecimals(currentRate);
+
+                    let amountA = assistant.getAvailableBalance().assetA;
                     amountA = assistant.truncDecimals(amountA);
-                    amountB = assistant.truncDecimals(amountB);
+
+                    let amountB = assistant.truncDecimals(amountA / currentRate);
 
                     if (positions.length > 0 && positions[0].type === "buy" && positions[0].status !== "executed") {
 
@@ -1694,6 +1708,11 @@
                         }
                     }
 
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> BTC BUY position to be created. "); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> currentRate = " + currentRate); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> amountA = " + amountA); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> amountB = " + amountB); }
+
                     assistant.putPosition("buy", currentRate, amountA, amountB, onBuy);
 
                     function onBuy() {
@@ -1701,6 +1720,15 @@
                         try {
 
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onBuy -> Entering function."); }
+
+                            if (err.result !== global.DEFAULT_OK_RESPONSE.result) {
+
+                                logger.write(MODULE_NAME, "[ERROR] start -> createSellPosition -> onBuy -> Error received from the Assistant");
+                                logger.write(MODULE_NAME, "[ERROR] start -> createSellPosition -> onBuy -> err = " + err.message);
+
+                                callBackFunction(err);
+                                return;
+                            }
 
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onBuy -> BTC BUY position created. "); }
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onBuy -> currentRate = " + currentRate); }
