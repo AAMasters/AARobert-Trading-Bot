@@ -1593,7 +1593,7 @@
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onMoved -> previous position = " + JSON.stringify(positions[0])); }
 
                                 let message = "I have moved an existing SELL position to this new rate: " + currentRate;
-                                assistant.sendMessage(0, "Moving SELL BTC Position", message);
+                                assistant.sendMessage(0, bot.instance + " Moving SELL BTC Position", message);
 
                                 callback();
                                 return;
@@ -1633,7 +1633,7 @@
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createSellPosition -> onSell -> amountB = " + amountB); }
 
                             let message = "I have created a new SELL position at rate: " + currentRate + ". " + MARKET.assetA + " amount: " + amountA + ". " + MARKET.assetB + " amount: " + amountB + ". ROI.assetB:" + ROI.assetB;
-                            assistant.sendMessage(0, "Selling BTC", message);
+                            assistant.sendMessage(0, bot.instance + " Selling BTC", message);
 
                             /* We need to remember the timePeriod for the next bot executions. Until we dont exit USDT we will keep the same timePeriod we used to enter. */
                             assistant.rememberThis("timePeriod", timePeriod);
@@ -1696,7 +1696,7 @@
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onMoved -> previous position = " + JSON.stringify(positions[0])); }
 
                                 let message = "I have moved an existing BUY position to this new rate: " + currentRate;
-                                assistant.sendMessage(0, "Moving BUY BTC Position", message);
+                                assistant.sendMessage(0, bot.instance + " Moving BUY BTC Position", message);
 
                                 callback();
                                 return;
@@ -1736,7 +1736,7 @@
                             if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> createBuyPosition -> onBuy -> amountB = " + amountB); }
 
                             let message = "I have created a new BUY position at rate: " + currentRate + ". " + MARKET.assetA + " amount: " + amountA + ". " + MARKET.assetB + " amount: " + amountB + ". ROI.assetB:" + ROI.assetB;
-                            assistant.sendMessage(0, "Buying BTC", message);
+                            assistant.sendMessage(0, bot.instance + " Buying BTC", message);
 
                             callback();
                             return;
