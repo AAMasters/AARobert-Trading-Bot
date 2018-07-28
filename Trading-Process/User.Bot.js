@@ -1364,7 +1364,7 @@
 
                         if (timePeriodSet === "Market-Files") {
 
-                            if (timePeriodIndex > i) {
+                            if (i > timePeriodIndex) { 
 
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> Market-Files -> Index Discarded, too volatile -> Time Period Index = " + i); }
 
@@ -1394,7 +1394,7 @@
 
                         if (timePeriodSet === "Daily-Files") {
 
-                            if (timePeriodIndex > i) {
+                            if (i > timePeriodIndex) {
 
                                 if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> Daily-Files -> Index Discarded, too volatile -> Time Period Index = " + i); }
 
