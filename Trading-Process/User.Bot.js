@@ -107,7 +107,7 @@
             /* 
             This trading bot will use an strategy based on the interpretation of the Linear Regression Curve Channel. LRCs can be calculated at different
             timePeriods. In order to choose which timePeriod to consider at each execution, the bot will first analize the market volatility and
-            based on that volatility will choose the timePeriod it understands is best for each situation.
+            based on that volatility will discard the timePeriods with higher frequency.
 
             This bot starts with a BTC investment and buy and sell USDT with the objective in mind to produce BTC profits.
 
@@ -115,28 +115,21 @@
 
             1.  First we will check if the bot is standing on BTC or USDT. If it is standing on BTC then it must later see if it is appropiate to SELL the BTC or not.
                 if it is standing on USDT, it will later see if it is a good time to BUY back BTC. The first run it will be standing in BTC since its investment is in
-                BTC. We will see that when the bot in iside a trade (already on USDT), the strategy is to keep the same timePeriod for our analisys that we used to enter
+                BTC. We will see that when the bot in inside a trade (already on USDT), the strategy is to keep the same timePeriod for our analisys that we used to enter
                 into that trade.
 
-                For example: The bot decided that 5 min timePeriod was the appropiate one to enter the trade according to market volatility. While in USDT, will just
-                analizy LRCs at 5 min timePeriod to guess when it must leave the USDT position.
+                For example: The bot decided that 5 min timePeriod was the max frequency appropiate to consider the buying signals to enter the trade according to market volatility. While in USDT, will just
+                analizy LRCs at >= 5 min timePeriod to guess when it must leave the USDT position.
 
                 Points labeled A, means the path while the bot is on BTC. Points labeled B is the path while the bot is at USDT.
 
-            2.A.First we will get the 1-hr market candle file from Olivia. According to the perceived volatility we will choose a timePeriod to analize if we should
-                sell the BTC or not. 
-
-            3.A.We load the LRC file of the timePeriod chosen in 2.A.
-
-            4.A.We analize the LRC file and decide if it is a good time to sell the BTC. If it is we do so.
-
-            2.B.We already know the timePeriod in which we moved into USDT. We load the LRC file for that timePeriod.
-
-            2.C.We analize the file and decide if it is a good time to go back to BTC.
+            2.A.First we will get the 1-hr market candle file from Olivia.
 
             */
 
             let timePeriod;
+            let timePeriodSet;
+            let timePeriodIndex;
 
             let currentProfits = assistant.getCombinedProfits();
             let balance = assistant.getBalance();
@@ -176,7 +169,7 @@
                             callBackFunction(global.DEFAULT_OK_RESPONSE);
                             return;
                         }
-                        case global.DEFAULT_RETRY_RESPONSE.result: {  // Something bad happened, but if we retry in a while it might go through the next time.
+                        case global.DEFAULT_RETRY_RESPONSE.result: {  // Something bad happened, but if we retry in a while it might go through the next time the bot executes.
 
                             logger.write(MODULE_NAME, "[ERROR] start -> onDone -> Retry Later. Requesting Execution Retry.");
                             callBackFunction(global.DEFAULT_RETRY_RESPONSE);
@@ -633,56 +626,89 @@
                             if (standardDeviation >= 0 && standardDeviation < 1) {
 
                                 timePeriod = "03-min";
+                                timePeriodIndex = 8;
+                                timePeriodSet = "Daily-Files";
+                                
                             }
 
                             if (standardDeviation >= 1 && standardDeviation < 2) {
 
                                 timePeriod = "04-min";
+                                timePeriodIndex = 7;
+                                timePeriodSet = "Daily-Files";
+
                             }
 
                             if (standardDeviation >= 2 && standardDeviation < 2.4) {
 
                                 timePeriod = "05-min";
+                                timePeriodIndex = 6;
+                                timePeriodSet = "Daily-Files";
+
                             }
 
                             if (standardDeviation >= 2.4 && standardDeviation < 2.6) {
 
                                 timePeriod = "10-min";
+                                timePeriodIndex = 5;
+                                timePeriodSet = "Daily-Files";
+
                             }
 
                             if (standardDeviation >= 2.6 && standardDeviation < 2.8) {
 
                                 timePeriod = "30-min";
+                                timePeriodIndex = 2;
+                                timePeriodSet = "Daily-Files";
+
                             }
 
                             if (standardDeviation >= 2.8 && standardDeviation < 3.0) {
 
                                 timePeriod = "40-min";
+                                timePeriodIndex = 1;
+                                timePeriodSet = "Daily-Files";
+
                             }
 
                             if (standardDeviation >= 3 && standardDeviation < 3.5) {
 
                                 timePeriod = "45-min";
+                                timePeriodIndex = 0;
+                                timePeriodSet = "Daily-Files";
+
                             }
 
                             if (standardDeviation >= 3.5 && standardDeviation < 4) {
 
                                 timePeriod = "01-hs";
+                                timePeriodIndex = 7;
+                                timePeriodSet = "Market-Files";
+
                             }
 
                             if (standardDeviation >= 4 && standardDeviation < 4.5) {
 
                                 timePeriod = "02-hs";
+                                timePeriodIndex = 6;
+                                timePeriodSet = "Market-Files";
+
                             }
 
                             if (standardDeviation >= 4.5 && standardDeviation < 5) {
 
                                 timePeriod = "06-hs";
+                                timePeriodIndex = 3
+                                timePeriodSet = "Market-Files";
+
                             }
 
                             if (standardDeviation >= 5 && standardDeviation < 100) {
 
                                 timePeriod = "24-hs";
+                                timePeriodIndex = 0
+                                timePeriodSet = "Market-Files";
+
                             }
 
                             if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> holdingBTC -> chooseTimePeriod -> standardDeviation = " + standardDeviation); }
@@ -711,6 +737,8 @@
                     if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> holdingUSDT -> Entering function."); }
 
                     timePeriod = assistant.remindMeOf("timePeriod");
+                    timePeriodIndex = assistant.remindMeOf("timePeriodIndex");
+                    timePeriodSet = assistant.remindMeOf("timePeriodSet");
 
                     if (FULL_LOG === true) { logger.write(MODULE_NAME, "[INFO] start -> holdingUSDT -> timePeriod = " + timePeriod); }
 
@@ -1343,6 +1371,13 @@
                         let buySignal = buySignals.get(timePeriodName);
                         let sellSignal = sellSignals.get(timePeriodName);
 
+                        /* According to the timePeriod calculated base on the volatility measurement, we have to discard all the signals that comes from timePeriods too volatiles. */
+
+                        if (timePeriodSet === "Market-Files") {
+
+                            if (timePeriodIndex > i) { continue;} // We discard higher indexes, which means timePeriods with higher frecuencies.
+                        }
+
                         if (buySignal === true) { totalBuyingSignals++; }
                         if (sellSignal === true) { totalSellingSignals++; }
 
@@ -1354,6 +1389,17 @@
 
                         let buySignal = buySignals.get(timePeriodName);
                         let sellSignal = sellSignals.get(timePeriodName);
+
+                        if (timePeriodSet === "Market-Files") {
+
+                            continue;  // If the timePeriod is on this set, then all Daily Files timePeriods are automatically discarded for being too volatile.
+
+                        }
+
+                        if (timePeriodSet === "Daily-Files") {
+
+                            if (timePeriodIndex > i) { continue; } // We discard higher indexes, which means timePeriods with higher frecuencies.
+                        }
 
                         if (buySignal === true) { totalBuyingSignals++; }
                         if (sellSignal === true) { totalSellingSignals++; }
@@ -1637,6 +1683,8 @@
 
                             /* We need to remember the timePeriod for the next bot executions. Until we dont exit USDT we will keep the same timePeriod we used to enter. */
                             assistant.rememberThis("timePeriod", timePeriod);
+                            assistant.rememberThis("timePeriodIndex", timePeriodIndex);
+                            assistant.rememberThis("timePeriodSet", timePeriodSet);
 
                             callback();
                             return;
