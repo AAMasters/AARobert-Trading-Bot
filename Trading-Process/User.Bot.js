@@ -105,25 +105,11 @@
             let totalSellingSignals = 0;     // We count all the sells alerts calculated for all timePeriods.
 
             /* 
-            This trading bot will use an strategy based on the interpretation of the Linear Regression Curve Channel. LRCs can be calculated at different
-            timePeriods. In order to choose which timePeriod to consider at each execution, the bot will first analize the market volatility and
-            based on that volatility will discard the timePeriods with higher frequency.
 
-            This bot starts with a BTC investment and buy and sell USDT with the objective in mind to produce BTC profits.
-
-            So this is the Bot's flight plan:
-
-            1.  First we will check if the bot is standing on BTC or USDT. If it is standing on BTC then it must later see if it is appropiate to SELL the BTC or not.
-                if it is standing on USDT, it will later see if it is a good time to BUY back BTC. The first run it will be standing in BTC since its investment is in
-                BTC. We will see that when the bot in inside a trade (already on USDT), the strategy is to keep the same timePeriod for our analisys that we used to enter
-                into that trade.
-
-                For example: The bot decided that 5 min timePeriod was the max frequency appropiate to consider the buying signals to enter the trade according to market volatility. While in USDT, will just
-                analizy LRCs at >= 5 min timePeriod to guess when it must leave the USDT position.
-
-                Points labeled A, means the path while the bot is on BTC. Points labeled B is the path while the bot is at USDT.
-
-            2.A.First we will get the 1-hr market candle file from Olivia.
+            Robert has 2 genes, one tell it how many buy signals it needs to BUY btc, and the second how many signals it needs to sell BTC.
+            It uses LRC to learn if there is a BUY or SELL signal at each timePeriod. Finally it adds all the BUY and SELL signals and get a
+            number for each one. Each clone is started with a different set of the 2 genes, so it will decide to buy or sell with a different
+            amount of buying or selling signals.
 
             */
 
@@ -1340,6 +1326,9 @@
                 try {
 
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> Entering function."); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> timePeriod = " + timePeriod); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> timePeriodIndex = " + timePeriodIndex); }
+                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> timePeriodSet = " + timePeriodSet); }
 
                     /* The first part of this function will generate the buy or sell alerts at each different possible timePeriod. */
 
@@ -1375,7 +1364,12 @@
 
                         if (timePeriodSet === "Market-Files") {
 
-                            if (timePeriodIndex > i) { continue;} // We discard higher indexes, which means timePeriods with higher frecuencies.
+                            if (timePeriodIndex > i) {
+
+                                if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> Market-Files -> Index Discarded, too volatile -> Time Period Index = " + i); }
+
+                                continue;
+                            } // We discard higher indexes, which means timePeriods with higher frecuencies.
                         }
 
                         if (buySignal === true) { totalBuyingSignals++; }
@@ -1392,13 +1386,20 @@
 
                         if (timePeriodSet === "Market-Files") {
 
+                            if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> Daily-Files -> Index Discarded, too volatile -> Time Period Index = " + i); }
+
                             continue;  // If the timePeriod is on this set, then all Daily Files timePeriods are automatically discarded for being too volatile.
 
                         }
 
                         if (timePeriodSet === "Daily-Files") {
 
-                            if (timePeriodIndex > i) { continue; } // We discard higher indexes, which means timePeriods with higher frecuencies.
+                            if (timePeriodIndex > i) {
+
+                                if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> checkRules -> Daily-Files -> Index Discarded, too volatile -> Time Period Index = " + i); }
+
+                                continue;
+                            } // We discard higher indexes, which means timePeriods with higher frecuencies.
                         }
 
                         if (buySignal === true) { totalBuyingSignals++; }
