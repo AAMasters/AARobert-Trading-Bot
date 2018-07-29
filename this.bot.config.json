@@ -14,13 +14,13 @@
     {
       "name": "buyThreshold",
       "description": "This represent the amount of buying signals needed to trigger a buying operation.",
-      "lowerLimit": 2,
+      "lowerLimit": 1,
       "upperLimit": 3
     },
     {
       "name": "sellThreshold",
       "description": "This represent the amount of selling signals needed to trigger a selling operation.",
-      "lowerLimit": 2,
+      "lowerLimit": 1,
       "upperLimit": 4
     }
   ],

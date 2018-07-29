@@ -63,6 +63,21 @@
                 return undefined;
             }
 
+            /*
+            let invertedLogic = getGeneticRulesByName("invertedLogic");
+
+            {
+                "name": "invertedLogic",
+                    "description": "This disables or enables the inversion of the buying or selling logic, meaning that instead of buying it sells and instead of selling it buys.",
+                        "lowerLimit": 0,
+                            "upperLimit": 1
+            },
+
+            pGenes.invertedLogic < invertedLogic.lowerLimit |
+                pGenes.invertedLogic > invertedLogic.upperLimit |
+
+                */
+
             let buyThreshold = getGeneticRulesByName("buyThreshold");
             let sellThreshold = getGeneticRulesByName("sellThreshold");
 
@@ -1542,24 +1557,28 @@
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> Entering function."); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> totalSellingSignals = " + totalSellingSignals); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> totalBuyingSignals = " + totalBuyingSignals); }
-                    
+
+                    /*
                     if (totalSellingSignals <= totalBuyingSignals) {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> It makes more sense to BUY than to SELL. Not Selling now."); }
                         callback();
                         return;
                     }
+                    */
 
-                    if (totalSellingSignals <= genes.sellThreshold) { // There are 19 possible timePeriods. We need than this threadhold to call a SELL. 
+                    if (totalSellingSignals >= genes.sellThreshold) {
+
+                        if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> This is the right time to SELL. Selling now."); }
+                        createSellPosition(callback);
+
+                    } else {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> Not enought selling signals. Not Selling now."); }
                         callback();
-                        return;
-                    }
-                    
-                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeSell -> This is the right time to SELL. Selling now."); }
-                    createSellPosition(callback);
 
+                    }
+                                        
                 } catch (err) {
                     logger.write(MODULE_NAME, "[ERROR] start -> decideIfWeSell -> err = " + err.message);
                     callBackFunction(global.DEFAULT_FAIL_RESPONSE);
@@ -1573,24 +1592,28 @@
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> Entering function."); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> totalSellingSignals = " + totalSellingSignals); }
                     if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> totalBuyingSignals = " + totalBuyingSignals); }
-                    
+
+                    /*
                     if (totalBuyingSignals <= totalSellingSignals) {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> It makes more sense to SELL than to BUY. Not Buying now."); }
                         callback();
                         return;
                     }
+                    */
 
-                    if (totalBuyingSignals <= genes.buyThreshold) { // There are 19 possible timePeriods. We need more than this threadhold to call a BUY. 
+                    if (totalBuyingSignals > genes.buyThreshold) {
+
+                        if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> This is the right time to BUY. Buying now."); }
+                        createBuyPosition(callback);
+
+                    } else {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> Not enought buying signals. Not Buying now."); }
                         callback();
-                        return;
+                        
                     }
                     
-                    if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> This is the right time to BUY. Buying now."); }
-                    createBuyPosition(callback);
-
                 } catch (err) {
                     logger.write(MODULE_NAME, "[ERROR] start -> decideIfWeBuy -> err = " + err.message);
                     callBackFunction(global.DEFAULT_FAIL_RESPONSE);
