@@ -10,18 +10,18 @@
   "devTeam": "AAMasters",
   "profilePicture": "Robert.png",
   "dataSetVersion": "dataSet.V1",
-  "geneticRules": [
+  "genes": [
     {
       "name": "buyThreshold",
       "description": "This represent the amount of buying signals needed to trigger a buying operation.",
-      "lowerLimit": 1,
+      "lowerLimit": 3,
       "upperLimit": 3
     },
     {
       "name": "sellThreshold",
       "description": "This represent the amount of selling signals needed to trigger a selling operation.",
-      "lowerLimit": 1,
-      "upperLimit": 4
+      "lowerLimit": 3,
+      "upperLimit": 3
     }
   ],
   "processes": [

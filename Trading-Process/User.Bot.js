@@ -49,34 +49,19 @@
 
             function getGeneticRulesByName(pName) {
 
-                for (let i = 0; i < bot.geneticRules.length; i++) {
+                for (let i = 0; i < bot.genes.length; i++) {
 
-                    let rule = bot.geneticRules[i];
+                    let gene = bot.genes[i];
 
-                    if (rule.name === pName) {
+                    if (gene.name === pName) {
 
-                        return rule;
+                        return gene;
 
                     }
                 }
 
                 return undefined;
             }
-
-            /*
-            let invertedLogic = getGeneticRulesByName("invertedLogic");
-
-            {
-                "name": "invertedLogic",
-                    "description": "This disables or enables the inversion of the buying or selling logic, meaning that instead of buying it sells and instead of selling it buys.",
-                        "lowerLimit": 0,
-                            "upperLimit": 1
-            },
-
-            pGenes.invertedLogic < invertedLogic.lowerLimit |
-                pGenes.invertedLogic > invertedLogic.upperLimit |
-
-                */
 
             let buyThreshold = getGeneticRulesByName("buyThreshold");
             let sellThreshold = getGeneticRulesByName("sellThreshold");
@@ -90,7 +75,7 @@
             {
                 logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> Genes received are out of range.");
                 logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> pGenes = " + JSON.stringify(pGenes));
-                logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> bot.geneticRules = " + JSON.stringify(bot.geneticRules));
+                logger.write(MODULE_NAME, "[ERROR] getGeneticRules -> bot.genes = " + JSON.stringify(bot.genes));
                 callBackFunction(global.DEFAULT_FAIL_RESPONSE);
                 return;
             }
@@ -1602,7 +1587,7 @@
                     }
                     */
 
-                    if (totalBuyingSignals > genes.buyThreshold) {
+                    if (totalBuyingSignals >= genes.buyThreshold) {
 
                         if (LOG_INFO === true) { logger.write(MODULE_NAME, "[INFO] start -> decideIfWeBuy -> This is the right time to BUY. Buying now."); }
                         createBuyPosition(callback);
